@@ -5,11 +5,12 @@
 \title{Transform a parameter list into a REDCap project}
 \usage{
 redcap_create_metadata_structure(
-  credential_path,
-  pid,
-  path_parameter_list,
+  credential_path = NULL,
+  pid = NULL,
+  path_parameter_list = "./inst/Parameter_List.xlsx",
   path_xlsx_output,
-  project_name
+  project_name = "test",
+  do_write_metadata_in_redcap = FALSE
 )
 }
 \arguments{

@@ -5,20 +5,23 @@
 #' corresponding data dictionary and b. an excel sheet with the corresponding
 #' data dictionary + relevant annotations to finalize the REDCap project
 #'
+#' @importFrom magrittr %>%
 #'
-#' @param credential_path Path where the credential file is stored
-#' @param pid Project ID
 #' @param path_parameter_list path to parameter list excel workbook
-#' @param path_xlsx_output path where draft of data dictionary is saved
+#' @param path_output path where draft of data dictionary is saved
 #' @param project_name project name (is used for naming the xlsx file)
+#' @param do_write_metadata_in_redcap logical indicating if the meta data structure should directly be written in REDCap
+#' @param credential_path Path where the credential file is stored
+#' @param pid Project ID in REDCap
 #' @return list
 #' @export
 redcap_create_metadata_structure = function(
-    credential_path,
-    pid,
-    path_parameter_list,
-    path_xlsx_output,
-    project_name
+    path_parameter_list = file.path(system.file(package = "redcapDmTools"), "Parameter_List.xlsx"),
+    path_output,
+    project_name = "test",
+    do_write_metadata_in_redcap = FALSE,
+    credential_path = NULL,
+    pid= NULL
   ){
 
   # reada all sheet paramete list file
@@ -32,7 +35,7 @@ redcap_create_metadata_structure = function(
 
   # construct output path, check if exist and make output dir if needed
   dir_path = file.path(
-    path_xlsx_output, project_name
+    path_output, project_name
   )
 
   if ( !dir.exists(dir_path) ) {
@@ -43,7 +46,7 @@ redcap_create_metadata_structure = function(
 
   # Construct path for files (xlsx and RData)
   file_path = file.path(
-    path_xlsx_output, project_name,
+    path_output, project_name,
     paste0(
       paste(
         project_name, lubridate::now(), sep = "_") %>%
@@ -56,12 +59,14 @@ redcap_create_metadata_structure = function(
   )
 
   # save the outputs as files
-  save_xlsx_and_rdata(project_data, file_path)
+  save_csv_and_rdata(project_data, file_path)
   # TODO: Let's see maybe I have time and skills to find a way to color the non-redcap columns so it is
   # easier to read
 
   # write metatadata in RCp database
-  write_metadata_in_redcap(project_name, project_data, credential_path, pid)
+  if (do_write_metadata_in_redcap){
+    write_metadata_in_redcap(project_name, project_data, credential_path, pid)
+  }
 
   return(file_path)
 
@@ -311,7 +316,7 @@ create_dictionary = function(df) {
 
 }
 
-save_xlsx_and_rdata = function(project_data, file_path) {
+save_csv_and_rdata = function(project_data, file_path) {
 
   # save the outputs as files
   save(
@@ -319,21 +324,16 @@ save_xlsx_and_rdata = function(project_data, file_path) {
     file = paste0(file_path, ".RData")
   )
 
-  xlsx::write.xlsx(
-    as.data.frame(project_data$dictionary_annotated),
-    file = paste0(file_path, ".xlsx"),
-    sheetName = "annotated_dic",
-    row.names = FALSE,
-    showNA = FALSE
+  readr::write_csv(
+    project_data$dictionary_annotated,
+    file = paste0(file_path, "_annotated_data_dictionary.csv"),
+    na = ""
   )
 
-  xlsx::write.xlsx(
-    as.data.frame(project_data$rcp_dictionary),
-    file = paste0(file_path, ".xlsx"),
-    sheetName = "dic",
-    row.names = FALSE,
-    showNA = FALSE,
-    append = TRUE
+  readr::write_csv(
+    project_data$rcp_dictionary,
+    file = paste0(file_path, "_data_dictionary.csv"),
+    na = ""
   )
 
 }
