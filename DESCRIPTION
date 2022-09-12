@@ -4,8 +4,18 @@ Title: Package with functions to facilitate the work of Data Managers using REDC
 Version: 0.1.0
 Author: Lucien Gyger
 Maintainer: The package maintainer <lucien.gyger@gmail.com>
-Description: This package contains functions to facilitate the work of a Data Manager using REDCap
+Description: A package for facilitating the work of a Data Manager using REDCap
     as data managementsystem.
+Imports: 
+    magrittr,
+    dplyr,
+    lubridate,
+    janitor,
+    stringr,
+    purrr,
+    REDCapR,
+    redcap,
+    svDialogs
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
